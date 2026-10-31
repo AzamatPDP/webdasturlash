@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-in-One Converter</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div class="w-full max-w-lg bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-6 md:p-8">
+        
+        <!-- Sarlavha -->
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-blue-400 tracking-tight flex items-center justify-center gap-2">
+                <i data-lucide="refresh-cw" class="w-7 h-7 text-blue-400"></i> Converter Hub
+            </h1>
+            <p class="text-sm text-slate-400 mt-1">Valyuta va oʻlchov birliklarini real vaqtda hisoblang</p>
+        </div>
+
+        <!-- Tab Tugmalari -->
+        <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-700">
+            <button id="tab-currency" onclick="switchTab('currency')" class="flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center justify-center gap-2">
+                <i data-lucide="dollar-sign" class="w-4 h-4"></i> Valyuta
+            </button>
+            <button id="tab-unit" onclick="switchTab('unit')" class="flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 text-slate-400 hover:text-white flex items-center justify-center gap-2">
+                <i data-lucide="scale" class="w-4 h-4"></i> Birliklar
+            </button>
+        </div>
+
+        <!-- TAB 1: VALYUTA KONVERTORI -->
+        <div id="content-currency" class="space-y-5">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Miqdor</label>
+                <input type="number" id="currency-amount" value="1" min="0" placeholder="Summani kiriting..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+            </div>
+
+            <div class="grid grid-cols-5 gap-2 items-center">
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Qaysi valyutadan</label>
+                    <select id="currency-from" class="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        <option value="USD" selected>USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="UZS">UZS (soʻm)</option>
+                        <option value="RUB">RUB (₽)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                </div>
+
+                <div class="col-span-1 flex justify-center pt-5">
+                    <button onclick="swapCurrencies()" class="p-3 bg-slate-700 hover:bg-slate-600 rounded-full transition-colors">
+                        <i data-lucide="arrow-right-left" class="w-4 h-4 text-blue-400"></i>
+                    </button>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Qaysi valyutaga</label>
+                    <select id="currency-to" class="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="UZS" selected>UZS (soʻm)</option>
+                        <option value="RUB">RUB (₽)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700/60 text-center space-y-1">
+                <span class="text-xs text-slate-400 uppercase font-semibold">Natija</span>
+                <div id="currency-result" class="text-2xl font-bold text-emerald-400">0.00</div>
+                <div id="currency-rate" class="text-xs text-slate-500">Kursing yangilanishi...</div>
+            </div>
+        </div>
+
+        <!-- TAB 2: BIRLIKLAR KONVERTORI -->
+        <div id="content-unit" class="space-y-5 hidden">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Oʻlchov turi</label>
+                <select id="unit-type" onchange="updateUnitOptions()" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <option value="weight">Ogʻirlik (kg ↔ lbs)</option>
+                    <option value="length">Uzunlik (km ↔ miles)</option>
+                    <option value="temp">Harorat (°C ↔ °F)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Miqdor</label>
+                <input type="number" id="unit-amount" value="1" placeholder="Qiymatni kiriting..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Boshlang'ich birlik</label>
+                    <select id="unit-from" class="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"></select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Maqsadli birlik</label>
+                    <select id="unit-to" class="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"></select>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700/60 text-center space-y-1">
+                <span class="text-xs text-slate-400 uppercase font-semibold">Natija</span>
+                <div id="unit-result" class="text-2xl font-bold text-blue-400">0.00</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Lucide belgilarni faollashtirish
+        lucide.createIcons();
+
+        // TAB SWITCHER
+        function switchTab(tab) {
+            const currencyBtn = document.getElementById('tab-currency');
+            const unitBtn = document.getElementById('tab-unit');
+            const currencyContent = document.getElementById('content-currency');
+            const unitContent = document.getElementById('content-unit');
+
+            if (tab === 'currency') {
+                currencyBtn.className = "flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center justify-center gap-2";
+                unitBtn.className = "flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 text-slate-400 hover:text-white flex items-center justify-center gap-2";
+                currencyContent.classList.remove('hidden');
+                unitContent.classList.add('hidden');
+            } else {
+                unitBtn.className = "flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center justify-center gap-2";
+                currencyBtn.className = "flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 text-slate-400 hover:text-white flex items-center justify-center gap-2";
+                unitContent.classList.remove('hidden');
+                currencyContent.classList.add('hidden');
+            }
+        }
+
+        // =====================================
+        // 1. VALYUTA KONVERTORI LOGIKASI
+        // =====================================
+        const currencyAmount = document.getElementById('currency-amount');
+        const currencyFrom = document.getElementById('currency-from');
+        const currencyTo = document.getElementById('currency-to');
+        const currencyResult = document.getElementById('currency-result');
+        const currencyRate = document.getElementById('currency-rate');
+
+        async function convertCurrency() {
+            const amount = parseFloat(currencyAmount.value) || 0;
+            const from = currencyFrom.value;
+            const to = currencyTo.value;
+
+            if (from === to) {
+                currencyResult.innerText = `${amount.toLocaleString()} ${to}`;
+                currencyRate.innerText = `1 ${from} = 1 ${to}`;
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+                const data = await response.json();
+
+                if (data.result === "success") {
+                    const rate = data.rates[to];
+                    const converted = (amount * rate).toFixed(2);
+                    
+                    currencyResult.innerText = `${parseFloat(converted).toLocaleString()} ${to}`;
+                    currencyRate.innerText = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+                } else {
+                    currencyResult.innerText = "Xatolik yuz berdi";
+                }
+            } catch (error) {
+                currencyResult.innerText = "Ulanishda xatolik!";
+            }
+        }
+
+        function swapCurrencies() {
+            const temp = currencyFrom.value;
+            currencyFrom.value = currencyTo.value;
+            currencyTo.value = temp;
+            convertCurrency();
+        }
+
+        currencyAmount.addEventListener('input', convertCurrency);
+        currencyFrom.addEventListener('change', convertCurrency);
+        currencyTo.addEventListener('change', convertCurrency);
+
+        // =====================================
+        // 2. BIRLIKLAR KONVERTORI LOGIKASI
+        // =====================================
+        const unitType = document.getElementById('unit-type');
+        const unitAmount = document.getElementById('unit-amount');
+        const unitFrom = document.getElementById('unit-from');
+        const unitTo = document.getElementById('unit-to');
+        const unitResult = document.getElementById('unit-result');
+
+        const unitData = {
+            weight: [
+                { id: 'kg', label: 'Kilogramm (kg)' },
+                { id: 'lbs', label: 'Punt (lbs)' }
+            ],
+            length: [
+                { id: 'km', label: 'Kilometr (km)' },
+                { id: 'miles', label: 'Milya (miles)' }
+            ],
+            temp: [
+                { id: 'celsius', label: 'Selsiy (°C)' },
+                { id: 'fahrenheit', label: 'Farengeyt (°F)' }
+            ]
+        };
+
+        function updateUnitOptions() {
+            const type = unitType.value;
+            const options = unitData[type];
+
+            unitFrom.innerHTML = '';
+            unitTo.innerHTML = '';
+
+            options.forEach(opt => {
+                unitFrom.add(new Option(opt.label, opt.id));
+                unitTo.add(new Option(opt.label, opt.id));
+            });
+
+            // Avtomatik ravishda qarama-qarshi birlikni tanlash
+            if (options.length > 1) {
+                unitTo.selectedIndex = 1;
+            }
+
+            convertUnit();
+        }
+
+        function convertUnit() {
+            const amount = parseFloat(unitAmount.value) || 0;
+            const from = unitFrom.value;
+            const to = unitTo.value;
+            let result = 0;
+
+            if (from === to) {
+                result = amount;
+            } else if (from === 'kg' && to === 'lbs') {
+                result = amount * 2.20462;
+            } else if (from === 'lbs' && to === 'kg') {
+                result = amount / 2.20462;
+            } else if (from === 'km' && to === 'miles') {
+                result = amount * 0.621371;
+            } else if (from === 'miles' && to === 'km') {
+                result = amount / 0.621371;
+            } else if (from === 'celsius' && to === 'fahrenheit') {
+                result = (amount * 9/5) + 32;
+            } else if (from === 'fahrenheit' && to === 'celsius') {
+                result = (amount - 32) * 5/9;
+            }
+
+            unitResult.innerText = `${result.toFixed(2)} ${to.toUpperCase()}`;
+        }
+
+        unitAmount.addEventListener('input', convertUnit);
+        unitFrom.addEventListener('change', convertUnit);
+        unitTo.addEventListener('change', convertUnit);
+
+        // Boshlang'ich yuklanish
+        convertCurrency();
+        updateUnitOptions();
+    </script>
+</body>
+</html>
